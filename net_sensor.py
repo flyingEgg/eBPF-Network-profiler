@@ -8,7 +8,11 @@ if os.geteuid() != 0:
 
 # Initialise
 print("Compiling daemon...")
-b = BPF(src_file="daemon.c")
+try:
+    b = BPF(src_file="daemon.c")
+except Exception as e:
+    print(f"Error compiling BPF program: {e}")
+    exit(1)
 
 
 # Kernel must hook up the C function to sys event 'tcp_v4_connect'
