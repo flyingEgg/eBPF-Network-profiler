@@ -1,6 +1,11 @@
 from bcc import BPF
 
 
+if os.geteuid() != 0: 
+    print("This program must be run as root. Exiting.")
+    exit(1)
+
+
 # Initialise
 print("Compiling daemon...")
 b = BPF(src_file="daemon.c")
