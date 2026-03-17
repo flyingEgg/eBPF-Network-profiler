@@ -10,6 +10,22 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Sudo Launch",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "-E",
+                "python3",
+                "${file}"
+            ],
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${env:PYTHONPATH}"
+            }
         }
     ]
 }
