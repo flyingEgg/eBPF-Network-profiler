@@ -12,28 +12,12 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: Sudo Launch",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "args": [
-                "-E",
-                "python3",
-                "${file}"
-            ],
-            "justMyCode": false,
-            "env": {
-                "PYTHONPATH": "${env:PYTHONPATH}"
-            }
-        },
-        {
             "name": "Python Attach Sudo",
             "type": "debugpy",
             "request": "attach",
             "connect": {
-                "host": "127.0.0.1",
-                "port": 5678
+                "host": "localhost",
+                "port": 10819
             },
             "pathMappings": [
                 {
