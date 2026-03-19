@@ -8,7 +8,7 @@
 int trace_tcp_connect(void *ctx) {
 
     // Obtain PID and TGID
-    __u64 id = bpf_get_current_pid_tigd();
+    __u64 id = bpf_get_current_pid_tgid();
     __u32 pid = id >> 32;
 
     // Get process name (e.g. "firefox", "bash")
