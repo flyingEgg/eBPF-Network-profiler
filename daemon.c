@@ -14,7 +14,7 @@ int trace_tcp_connect(void *ctx) {
     // Get process name (e.g. "firefox", "bash")
     char comm[TASK_COMM_LEN];
     bpf_get_current_comm(&comm, sizeof(comm));
-    bpf_trace_printk("New TCP connection traced: %s (PID: %d)!\\n", comm, pid);
+    bpf_trace_printk("New TCP connection traced: %s (PID: %d) ", comm, pid);
 
     return 0;
 }
