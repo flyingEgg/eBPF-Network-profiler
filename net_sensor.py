@@ -3,7 +3,7 @@ import sys
 import debugpy
 
 from bcc import BPF
-
+from ctypes import Structure, c_uint32, c_char, cast, POINTER
 
 if os.geteuid() != 0: 
     print("This program must be run as root. Exiting.")
@@ -42,9 +42,22 @@ except Exception as e:
     print(f"Error compiling BPF program: {e}")
     exit(1)
 
+try:
+    b.attach_kprobe(event="tcp_v4_connect", fn_name="trace_tcp_connect")
+    print(f"Hook tcp_v4_connect attached successfully.")
+except Exception as ex:
+    print(f"Error attaching kprobe to tcp_v4_connect: {ex}")
+    sys.exit(1)
 
-# Kernel must hook up the C function to sys event 'tcp_v4_connect'
-b.attach_kprobe(event="tcp_v4_connect", fn_name="trace_tcp_connect")
+# Callback to process events from the kernel
+def process_event(cpu, data, size):
+    # event = b["events"].event(data)
+    event = cast(data, POINTER(NetEvent)).contents
+    process_name = event.comm.decode('utf-8', 'replace')
+    print(f"New connection from PID: {event.pid} - Process Name: {process_name}")
+
+# Open the perf buffer to receive events from the kernel
+b["events"].open_perf_buffer(process_event)
 
 # User space
 print("Ready! Listening new TCP connections... (Ctrl+C to quit)")
