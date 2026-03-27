@@ -4,6 +4,11 @@ import debugpy
 
 from bcc import BPF
 
+
+if os.geteuid() != 0: 
+    print("This program must be run as root. Exiting.")
+    exit(1)
+
 # Debugpy launcher
 if "--debug" in sys.argv:
     try:                            # If there are any errors, program will continue without debugging
