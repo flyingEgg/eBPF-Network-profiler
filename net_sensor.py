@@ -34,12 +34,6 @@ if "--debug" in sys.argv:
 else:
     print ("Proceeding without debugger. To enable debugging, run with --debug flag.")
 
-def process_event(cpu, data, size):
-    event = b["events"].event(data)
-
-    process_name = event.comm.decode('utf-8', 'replace')
-    print(f"New connection from PID: {event.pid} - Process Name: {process_name}")
-
 
 # Initialise
 print("Compiling daemon...")
