@@ -65,6 +65,7 @@ print("Ready! Listening new TCP connections... (Ctrl+C to quit)")
 
 # trace_print() legge il buffer circolare dove bpf_trace_printk scrive i messaggi
 try:
-    b.trace_print()
+    while True:
+        b.perf_buffer_poll(timeout=100)
 except KeyboardInterrupt:
     print("\n"+"Closing sensor.")
