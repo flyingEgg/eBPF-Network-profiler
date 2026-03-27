@@ -9,6 +9,13 @@ if os.geteuid() != 0:
     print("This program must be run as root. Exiting.")
     exit(1)
 
+# Class to represent the event data structure (must match the one in daemon.c)
+class NetEvent(Structure):
+    _fields_ = [
+        ("pid", c_uint32),          # PID
+        ("comm", c_char * 16)      # Process name (TASK_COMM_LEN)
+    ]
+
 # Debugpy launcher
 if "--debug" in sys.argv:
     try:                            # If there are any errors, program will continue without debugging
