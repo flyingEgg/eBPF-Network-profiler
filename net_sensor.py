@@ -33,10 +33,6 @@ def process_event(cpu, data, size):
     process_name = event.comm.decode('utf-8', 'replace')
     print(f"New connection from PID: {event.pid} - Process Name: {process_name}")
 
-if os.geteuid() != 0: 
-    print("This program must be run as root. Exiting.")
-    exit(1)
-
 
 # Initialise
 print("Compiling daemon...")
