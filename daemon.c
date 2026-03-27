@@ -7,6 +7,14 @@
 
 #define TASK_COMM_LEN 16
 
+// Define a structure to hold event data (if needed)
+struct net_event {
+    __u32 pid;                  // PID
+    char comm[TASK_COMM_LEN];   // Process name
+};
+BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
+
+
 int trace_tcp_connect(void *ctx) {
 
     struct net_event data = {};
