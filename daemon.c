@@ -1,9 +1,4 @@
 #include <linux/ptrace.h>
-#include <linux/sched.h>
-#include <linux/types.h>
-#include <linux/bpf.h>
-#include <vmlinux.h>
-
 
 #define TASK_COMM_LEN 16
 
