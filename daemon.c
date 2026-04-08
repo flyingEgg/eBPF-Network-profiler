@@ -20,7 +20,7 @@ struct net_event {
 BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
 
 
-int trace_tcp_connect(void *ctx) {
+int trace_tcp_connect(struct pt_regs *ctx, struct mock_sock *sock) {
 
     struct net_event data = {};
 
@@ -28,11 +28,11 @@ int trace_tcp_connect(void *ctx) {
     data.pid = id >> 32; // Fetch PID
 
     bpf_get_current_comm(&data.comm, sizeof(data.comm)); // Fetch process name
+
+    data.daddr = sock->daddr; // Capture destination address
+    data.dport = sock->dport; // Capture destination port
+
     events.perf_submit(ctx, &data, sizeof(data)); // Submit event data to user space
-
-    // Open to suggestions for additional data to capture (e.g., socket info, destination IP/port) 
-
-    // Next possible feature: Capture socket information (e.g., destination IP and port) for TCP connect events.
 
     return 0;
 }
