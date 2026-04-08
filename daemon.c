@@ -2,6 +2,14 @@
 
 #define TASK_COMM_LEN 16
 
+struct mock_sock {
+    unsigned int daddr;        // Dest address
+    unsigned int rcv_saddr;    // Source address
+    unsigned int hash;         // Socket hash (for identification)
+    unsigned short dport;        // Dest port
+    unsigned short lport;        // Local port
+};
+
 // Define a structure to hold event data (if needed)
 struct net_event {
     __u32 pid;                  // PID
