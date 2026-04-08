@@ -12,7 +12,9 @@ struct mock_sock {
 
 // Define a structure to hold event data (if needed)
 struct net_event {
-    __u32 pid;                  // PID
+    unsigned int pid;                  // PID
+    unsigned int daddr;
+    unsigned short dport;
     char comm[TASK_COMM_LEN];   // Process name
 };
 BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
