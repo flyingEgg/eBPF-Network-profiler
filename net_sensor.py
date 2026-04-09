@@ -1,6 +1,8 @@
 import os
 import sys
 import debugpy
+import struct
+import socket
 import time
 
 from bcc import BPF
@@ -54,9 +56,14 @@ except Exception as ex:
 
 # Callback to process events from the kernel
 def process_event(cpu, data, size):
-    # event = b["events"].event(data)
-    event = cast(data, POINTER(NetEvent)).contents
+    event = b["events"].event(data)
+
+    #event = cast(data, POINTER(NetEvent)).contents
     process_name = event.comm.decode('utf-8', 'replace')
+
+    ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
+    port_dest = socket.ntohs(event.dport)
+
     print(f"[{time.time() - start:.2f}s] - New connection from {process_name}, PID: {event.pid} -> {ip_dest}:{port_dest}")
 
 # Open the perf buffer to receive events from the kernel
