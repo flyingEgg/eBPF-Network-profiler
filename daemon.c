@@ -2,12 +2,10 @@
 
 #define TASK_COMM_LEN 16
 
-struct mock_sock {
-    unsigned int daddr;        // Dest address
-    unsigned int rcv_saddr;    // Source address
-    unsigned int hash;         // Socket hash (for identification)
-    unsigned short dport;        // Dest port
-    unsigned short lport;        // Local port
+struct mock_sockaddr_in {
+    unsigned short sin_family;
+    unsigned short sin_port;   // Port number
+    unsigned int   sin_addr;   // IPv4 address
 };
 
 // Define a structure to hold event data (if needed)
