@@ -1,6 +1,7 @@
 import os
 import sys
 import debugpy
+import time
 
 from bcc import BPF
 from ctypes import Structure, c_uint32, c_char, cast, POINTER
@@ -36,6 +37,7 @@ else:
 
 
 # Initialise
+start = time.time()
 print("Compiling daemon...")
 try:
     b = BPF(src_file="daemon.c")
@@ -55,7 +57,7 @@ def process_event(cpu, data, size):
     # event = b["events"].event(data)
     event = cast(data, POINTER(NetEvent)).contents
     process_name = event.comm.decode('utf-8', 'replace')
-    print(f"New connection from PID: {event.pid} - Process Name: {process_name}")
+    print(f"[{time.time() - start:.2f}s] - New connection from {process_name}, PID: {event.pid} -> {ip_dest}:{port_dest}")
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
