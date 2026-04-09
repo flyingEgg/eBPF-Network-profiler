@@ -18,7 +18,7 @@ struct net_event {
 BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
 
 
-int trace_tcp_connect(struct pt_regs *ctx, struct mock_sock *sock) {
+int trace_tcp_connect(struct pt_regs *ctx, void *sock, struct mock_sockaddr_in *uaddr) {
 
     struct net_event data = {};
 
@@ -27,8 +27,8 @@ int trace_tcp_connect(struct pt_regs *ctx, struct mock_sock *sock) {
 
     bpf_get_current_comm(&data.comm, sizeof(data.comm)); // Fetch process name
 
-    data.daddr = sock->daddr; // Capture destination address
-    data.dport = sock->dport; // Capture destination port
+    bpf_probe_read_kernel(&data.daddr, sizeof(data.daddr), (void *)&uaddr->sin_addr);   // Read destination address from kernel memory
+    bpf_probe_read_kernel(&data.dport, sizeof(data.dport), (void *)&uaddr->sin_port);   // Read destination port from kernel memory
 
     events.perf_submit(ctx, &data, sizeof(data)); // Submit event data to user space
 
