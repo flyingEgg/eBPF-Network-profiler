@@ -3,7 +3,7 @@ import sys
 import debugpy
 import struct
 import socket
-import time
+import datetime
 
 from bcc import BPF
 from ctypes import Structure, c_uint32, c_char, cast, POINTER
@@ -39,7 +39,6 @@ else:
 
 
 # Initialise
-start = time.time()
 print("Compiling daemon...")
 try:
     b = BPF(src_file="daemon.c")
@@ -64,7 +63,7 @@ def process_event(cpu, data, size):
     ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
     port_dest = socket.ntohs(event.dport)
 
-    print(f"[{time.time() - start:.2f}s] - New connection from {process_name}, PID: {event.pid} -> {ip_dest}:{port_dest}")
+    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {ip_dest}:{port_dest}")
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
