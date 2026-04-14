@@ -5,6 +5,7 @@ import struct
 import socket
 import datetime
 
+from IPy import IP
 from bcc import BPF
 from ctypes import Structure, c_uint32, c_char, cast, POINTER
 
@@ -60,10 +61,10 @@ def process_event(cpu, data, size):
     #event = cast(data, POINTER(NetEvent)).contents
     process_name = event.comm.decode('utf-8', 'replace')
 
-    ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
+    ip_dest = IP(socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr)))
     port_dest = socket.ntohs(event.dport)
 
-    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {ip_dest}:{port_dest}")
+    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {ip_dest.reverseName()}, port: {port_dest}")
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
