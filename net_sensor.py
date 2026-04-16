@@ -61,10 +61,12 @@ def process_event(cpu, data, size):
     #event = cast(data, POINTER(NetEvent)).contents
     process_name = event.comm.decode('utf-8', 'replace')
 
-    ip_dest = IP(socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr)))
+    ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
     port_dest = socket.ntohs(event.dport)
 
-    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {ip_dest.reverseName()}, port: {port_dest}")
+    final_dest = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
+
+    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {final_dest}:{port_dest}")
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
