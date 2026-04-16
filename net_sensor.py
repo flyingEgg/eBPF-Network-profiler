@@ -50,7 +50,8 @@ def capture_dns_responses(pkt):
 
 
 
-dns_cache = {}          # This is an in-memory cache to store resolved DNS queries (hostname -> IP address)
+dns_cache = {}          # This is an in-memory cache to store
+                        # resolved DNS queries (hostname -> IP address)
 dns_snopper = DNSThread(dns_cache, capture_dns_responses)
 
 if os.geteuid() != 0: 
@@ -91,7 +92,7 @@ try:
 except Exception as ex:
     print(f"Error attaching kprobe to tcp_v4_connect: {ex}")
     sys.exit(1)
-    
+
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
