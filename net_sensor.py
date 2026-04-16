@@ -19,6 +19,36 @@ class NetEvent(Structure):
         ("comm", c_char * 16)      # Process name (TASK_COMM_LEN)
     ]
 
+# Callback to process events from the kernel
+def process_event(cpu, data, size):
+    event = b["events"].event(data)
+
+    #event = cast(data, POINTER(NetEvent)).contents
+    process_name = event.comm.decode('utf-8', 'replace')
+
+    ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
+    port_dest = socket.ntohs(event.dport)
+
+    final_dest = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
+
+    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {final_dest}:{port_dest}")
+
+def capture_dns_responses(pkt):
+    if pkt.haslayer(DNSRR):
+        try:
+            for i in range(pkt[DNS].ancount):
+                dns_rr = pkt[DNSRR][i]
+                if dns_rr.type == 1:
+                    solved_hostname = dns_rr.rdata
+                    domain = dns_rr.rname.decode('utf-8').rstrip('.')
+
+                   
+                    dns_cache[solved_hostname] = domain
+        except Exception as e:
+            print(f"Error processing DNS response: {e}")
+
+
+
 
 dns_cache = {}          # This is an in-memory cache to store resolved DNS queries (hostname -> IP address)
 dns_snopper = DNSThread(dns_cache, capture_dns_responses)
@@ -61,20 +91,7 @@ try:
 except Exception as ex:
     print(f"Error attaching kprobe to tcp_v4_connect: {ex}")
     sys.exit(1)
-
-# Callback to process events from the kernel
-def process_event(cpu, data, size):
-    event = b["events"].event(data)
-
-    #event = cast(data, POINTER(NetEvent)).contents
-    process_name = event.comm.decode('utf-8', 'replace')
-
-    ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
-    port_dest = socket.ntohs(event.dport)
-
-    final_dest = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
-
-    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {final_dest}:{port_dest}")
+    
 
 # Open the perf buffer to receive events from the kernel
 b["events"].open_perf_buffer(process_event)
@@ -88,17 +105,3 @@ try:
         b.perf_buffer_poll(timeout=100)
 except KeyboardInterrupt:
     print("\n"+"Closing sensor.")
-
-def capture_dns_responses(pkt):
-    if pkt.haslayer(DNSRR):
-        try:
-            for i in range(pkt[DNS].ancount):
-                dns_rr = pkt[DNSRR][i]
-                if dns_rr.type == 1:
-                    solved_hostname = dns_rr.rdata
-                    domain = dns_rr.rname.decode('utf-8').rstrip('.')
-
-                   
-                    dns_cache[solved_hostname] = domain
-        except Exception as e:
-            print(f"Error processing DNS response: {e}")
