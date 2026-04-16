@@ -13,4 +13,7 @@ class DNSThread:
 
     def start(self):
         self.thread.start()
+    
+    def alive_check(self):
+        return self.thread.is_alive()
         

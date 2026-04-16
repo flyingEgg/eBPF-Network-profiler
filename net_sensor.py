@@ -60,6 +60,10 @@ dns_cache = {}          # This is an in-memory cache to store
 dns_snopper = DNSThread(dns_cache, capture_dns_responses)
 dns_snopper.start()
 
+if dns_snopper.alive_check():
+    print("DNS sniffer thread is running.")
+
+
 if os.geteuid() != 0: 
     print("This program must be run as root. Exiting.")
     exit(1)
