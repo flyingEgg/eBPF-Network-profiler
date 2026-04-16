@@ -40,7 +40,7 @@ def capture_dns_responses(pkt):
                 dns_rr = pkt[DNSRR][i]
                 if dns_rr.type == 1:
                     solved_hostname = dns_rr.rdata
-                    domain = dns_rr.rname.decode('utf-8').rstrip('.')
+                    domain = dns_rr.rrname.decode('utf-8').rstrip('.')
 
                    
                     dns_cache[solved_hostname] = domain
