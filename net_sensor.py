@@ -5,9 +5,11 @@ import struct
 import socket
 import datetime
 
-from IPy import IP
+
+from scapy.layers.dns import DNS, DNSRR
 from bcc import BPF
 from ctypes import Structure, c_uint32, c_char, cast, POINTER
+from DNSThread import DNSThread
 
 
 # Class to represent the event data structure (must match the one in daemon.c)
@@ -16,6 +18,10 @@ class NetEvent(Structure):
         ("pid", c_uint32),          # PID
         ("comm", c_char * 16)      # Process name (TASK_COMM_LEN)
     ]
+
+
+dns_cache = {}          # This is an in-memory cache to store resolved DNS queries (hostname -> IP address)
+dns_snopper = DNSThread(dns_cache, capture_dns_responses)
 
 if os.geteuid() != 0: 
     print("This program must be run as root. Exiting.")
@@ -82,3 +88,17 @@ try:
         b.perf_buffer_poll(timeout=100)
 except KeyboardInterrupt:
     print("\n"+"Closing sensor.")
+
+def capture_dns_responses(pkt):
+    if pkt.haslayer(DNSRR):
+        try:
+            for i in range(pkt[DNS].ancount):
+                dns_rr = pkt[DNSRR][i]
+                if dns_rr.type == 1:
+                    solved_hostname = dns_rr.rdata
+                    domain = dns_rr.rname.decode('utf-8').rstrip('.')
+
+                   
+                    dns_cache[solved_hostname] = domain
+        except Exception as e:
+            print(f"Error processing DNS response: {e}")
