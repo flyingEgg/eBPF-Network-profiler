@@ -9,9 +9,6 @@ from IPy import IP
 from bcc import BPF
 from ctypes import Structure, c_uint32, c_char, cast, POINTER
 
-if os.geteuid() != 0: 
-    print("This program must be run as root. Exiting.")
-    exit(1)
 
 # Class to represent the event data structure (must match the one in daemon.c)
 class NetEvent(Structure):
@@ -19,6 +16,11 @@ class NetEvent(Structure):
         ("pid", c_uint32),          # PID
         ("comm", c_char * 16)      # Process name (TASK_COMM_LEN)
     ]
+
+if os.geteuid() != 0: 
+    print("This program must be run as root. Exiting.")
+    exit(1)
+
 
 # Debugpy launcher
 if "--debug" in sys.argv:
