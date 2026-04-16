@@ -58,6 +58,7 @@ def capture_dns_responses(pkt):
 dns_cache = {}          # This is an in-memory cache to store
                         # resolved DNS queries (hostname -> IP address)
 dns_snopper = DNSThread(dns_cache, capture_dns_responses)
+dns_snopper.start()
 
 if os.geteuid() != 0: 
     print("This program must be run as root. Exiting.")
