@@ -37,7 +37,12 @@ def capture_dns_responses(pkt):
     if pkt.haslayer(DNSRR):
         try:
             for i in range(pkt[DNS].ancount):
-                dns_rr = pkt[DNSRR][i]
+                try:
+                    dns_rr = pkt[DNSRR][i]
+                except IndexError:
+                    break
+
+                
                 if dns_rr.type == 1:
                     solved_hostname = dns_rr.rdata
                     domain = dns_rr.rrname.decode('utf-8').rstrip('.')
