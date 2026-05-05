@@ -55,6 +55,8 @@ def process_event(cpu, data, size):
     resolved_domain = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
     port_dest = socket.ntohs(event.dport)
 
+    log_event(timestamp.isoformat(), process_name, pid, ip_dest, port_dest, resolved_domain)
+
 # This function logs the captured events into a JSON file
 def log_event(time, process, pid, ip, port, domain):
     log_entry = {
