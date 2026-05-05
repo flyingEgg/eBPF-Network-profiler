@@ -40,9 +40,16 @@ def process_event(cpu, data, size):
     event = b["events"].event(data)
 
     #event = cast(data, POINTER(NetEvent)).contents
-    process_name = event.comm.decode('utf-8', 'replace')
 
+    timestamp = datetime.datetime.now()
+
+    # Process infos
+    process_name = event.comm.decode('utf-8', 'replace')
+    pid = event.pid
+
+    # Networking infos
     ip_dest = socket.inet_ntop(socket.AF_INET, struct.pack("I", event.daddr))
+    resolved_domain = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
     port_dest = socket.ntohs(event.dport)
 
     final_dest = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
