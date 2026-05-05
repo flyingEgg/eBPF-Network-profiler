@@ -20,6 +20,7 @@ import debugpy
 import struct
 import socket
 import datetime
+import json
 
 
 from scapy.layers.dns import DNS, DNSRR
@@ -34,6 +35,8 @@ class NetEvent(Structure):
         ("pid", c_uint32),          # PID
         ("comm", c_char * 16)      # Process name (TASK_COMM_LEN)
     ]
+
+log_file = open("sensor_audit.json", "a", buffering=8192)
 
 # Callback to process events from the kernel
 def process_event(cpu, data, size):
@@ -52,9 +55,20 @@ def process_event(cpu, data, size):
     resolved_domain = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
     port_dest = socket.ntohs(event.dport)
 
-    final_dest = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
+# This function logs the captured events into a JSON file
+def log_event(time, process, pid, ip, port, domain):
+    log_entry = {
+        "timestamp": time,
+        "process-name": process,
+        "pid": pid,
+        "ip-destination": ip,
+        "port-destination": port,
+        "resolved-domain": domain if domain != ip else None
+    }
 
-    print(f"[{datetime.datetime.now()}] - New connection from \"{process_name}\", PID: {event.pid} -> {final_dest}:{port_dest}")
+    log_file.write(json.dumps(log_entry) + "\n")
+    log_file.flush()
+
 
 def capture_dns_responses(pkt):
     if pkt.haslayer(DNSRR):
