@@ -41,7 +41,6 @@ log_file = open("sensor_audit.json", "a", buffering=8192)
 # Callback to process events from the kernel
 def process_event(cpu, data, size):
     event = b["events"].event(data)
-
     #event = cast(data, POINTER(NetEvent)).contents
 
     timestamp = datetime.datetime.now()
@@ -55,6 +54,7 @@ def process_event(cpu, data, size):
     resolved_domain = dns_cache.get(ip_dest, ip_dest)  # Check if the IP address has a resolved hostname in the cache
     port_dest = socket.ntohs(event.dport)
 
+    print(f"[{timestamp}] - New connection from \"{process_name}\", PID: {pid} -> {resolved_domain}:{port_dest}")
     log_event(timestamp.isoformat(), process_name, pid, ip_dest, port_dest, resolved_domain)
 
 # This function logs the captured events into a JSON file
