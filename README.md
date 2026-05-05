@@ -98,3 +98,6 @@ DNS lookups are synchronous by nature and would bottleneck the event loop. The `
 
 This is an open project and contributions are welcome! If you're into eBPF, Linux internals, or network tooling — feel free to open an issue or a PR. Even just feedback on the architecture is appreciated.
 
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
