@@ -46,8 +46,26 @@ struct net_event {
 };
 BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
 
-
+// Opens a connection
 int trace_tcp_connect(struct pt_regs *ctx, void *sock, struct mock_sockaddr_in *uaddr) {
+    __u64 start_ts = bpf_ktime_get_ns();    // Get start timestamp in nanoseconds
+    __u64 sock_pts = (__u64)sock;           // Cast pointer as unique identifier
+
+    active_sessions.update(&sock_pts, &start_ts);
+
+    return 0;
+}
+
+
+int trace_tcp_close(struct pt_regs *ctx, struct mock_sock *sk) {
+
+    __u64 sk_ptr = (__u64)sk;
+
+    __u64 *start_ts = active_sessions.lookup(&sk_ptr);
+    if (start_ts == 0){
+        return 0; // Ignore if the connection started before running the program
+    }    
+
 
     struct net_event data = {};
 
@@ -56,8 +74,10 @@ int trace_tcp_connect(struct pt_regs *ctx, void *sock, struct mock_sockaddr_in *
 
     bpf_get_current_comm(&data.comm, sizeof(data.comm)); // Fetch process name
 
-    bpf_probe_read_kernel(&data.daddr, sizeof(data.daddr), (void *)&uaddr->sin_addr);   // Read destination address from kernel memory
-    bpf_probe_read_kernel(&data.dport, sizeof(data.dport), (void *)&uaddr->sin_port);   // Read destination port from kernel memory
+    bpf_probe_read_kernel(&data.daddr, sizeof(data.daddr), (void *)&sk->daddr);   // Read destination address from kernel memory
+    bpf_probe_read_kernel(&data.dport, sizeof(data.dport), (void *)&sk->dport);   // Read destination port from kernel memory
+
+    data.duration_ns = bpf_ktime_get_ns() - *start_ts;
 
     events.perf_submit(ctx, &data, sizeof(data)); // Submit event data to user space
 
