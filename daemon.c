@@ -42,6 +42,7 @@ struct net_event {
     unsigned int daddr;
     unsigned short dport;
     char comm[TASK_COMM_LEN];   // Process name
+    unsigned long long duration_ns; // Duration in nanoseconds
 };
 BPF_PERF_OUTPUT(events);   // Define a map to send events to user space
 
