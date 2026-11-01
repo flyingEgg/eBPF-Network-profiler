@@ -278,3 +278,6 @@ vmlinux.h
 
 # Log file for the net sensor
 sensor_audit.json
+
+# Other files
+idee_futuri_sviluppi.txt
