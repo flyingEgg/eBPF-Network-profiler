@@ -138,6 +138,7 @@ except Exception as e:
 
 try:
     b.attach_kprobe(event="tcp_v4_connect", fn_name="trace_tcp_connect")
+    b.attach_kprobe(event="tcp_v4_connect", fn_name="trace_tcp_close")
     print(f"Hook tcp_v4_connect attached successfully.")
 except Exception as ex:
     print(f"Error attaching kprobe to tcp_v4_connect: {ex}")
