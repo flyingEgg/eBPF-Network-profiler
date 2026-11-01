@@ -55,11 +55,12 @@ def process_event(cpu, data, size):
     port_dest = socket.ntohs(event.dport)
 
     print(f"[{timestamp}] - New connection from \"{process_name}\", PID: {pid} -> {resolved_domain}:{port_dest}")
-    log_event(timestamp.isoformat(), process_name, pid, ip_dest, port_dest, resolved_domain)
+    log_event(timestamp.isoformat(), event.duration_ns, process_name, pid, ip_dest, port_dest, resolved_domain)
 
 # This function logs the captured events into a JSON file
-def log_event(time, process, pid, ip, port, domain):
+def log_event(time, duration_ns, process, pid, ip, port, domain):
     log_entry = {
+        "duration_ms": round(duration_ns / 1_000_000.0, 2),
         "timestamp": time,
         "process-name": process,
         "pid": pid,
