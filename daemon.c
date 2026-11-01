@@ -81,5 +81,6 @@ int trace_tcp_close(struct pt_regs *ctx, struct mock_sock *sk) {
 
     events.perf_submit(ctx, &data, sizeof(data)); // Submit event data to user space
 
+    active_sessions.delete(&sk_ptr);
     return 0;
 }
